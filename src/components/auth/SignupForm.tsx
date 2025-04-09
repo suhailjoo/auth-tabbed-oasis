@@ -35,13 +35,13 @@ const SignupForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel className="text-gray-700">Full Name</FormLabel>
               <FormControl>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="John Doe" 
-                    className="pl-10"
+                    className="pl-10 auth-input bg-white/50 backdrop-blur-sm border-secondary/50 focus:border-accent"
                     {...field} 
                   />
                 </div>
@@ -56,14 +56,14 @@ const SignupForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-gray-700">Email</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="you@example.com" 
                     type="email"
-                    className="pl-10"
+                    className="pl-10 auth-input bg-white/50 backdrop-blur-sm border-secondary/50 focus:border-accent"
                     {...field} 
                   />
                 </div>
@@ -78,21 +78,21 @@ const SignupForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-gray-700">Password</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="••••••" 
                     type={showPassword ? "text" : "password"}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 auth-input bg-white/50 backdrop-blur-sm border-secondary/50 focus:border-accent"
                     {...field} 
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-1 top-1 h-8 w-8 p-0"
+                    className="absolute right-1 top-1 h-8 w-8 p-0 opacity-70 hover:opacity-100 transition-opacity"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -113,13 +113,13 @@ const SignupForm = () => {
           name="organizationName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization Name</FormLabel>
+              <FormLabel className="text-gray-700">Organization Name</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="Acme Inc." 
-                    className="pl-10"
+                    className="pl-10 auth-input bg-white/50 backdrop-blur-sm border-secondary/50 focus:border-accent"
                     {...field} 
                   />
                 </div>
@@ -129,7 +129,10 @@ const SignupForm = () => {
           )}
         />
         
-        <Button type="submit" className="w-full">
+        <Button 
+          type="submit" 
+          className="w-full mt-6 auth-button bg-accent hover:bg-accent/90 text-white font-semibold"
+        >
           Create Account
         </Button>
       </form>
