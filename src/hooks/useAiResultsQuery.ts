@@ -37,14 +37,13 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Use any type for response to avoid deep type inference
+      // Using a generic type param instead of `.returns<>` to avoid deep inference
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
-        .eq("payload->candidate_id", candidateId)
-        .returns<SimpleWorkflowJob[]>();
+        .eq("payload->candidate_id", candidateId);
       
       if (error) {
         throw error;
@@ -58,8 +57,10 @@ export function useAiResultsQuery(candidateId: string) {
       };
 
       // Safely process the data with explicit typing
-      if (data) {
-        data.forEach(item => {
+      if (data && Array.isArray(data)) {
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i] as SimpleWorkflowJob;
+          
           if (item.job_type === "role_fit_score" && item.result) {
             results.roleFitScore = {
               fit_score: item.result.fit_score ?? "N/A",
@@ -71,9 +72,10 @@ export function useAiResultsQuery(candidateId: string) {
             // Handle tags array safely
             const tags: string[] = [];
             if (item.result.tags && Array.isArray(item.result.tags)) {
-              item.result.tags.forEach(tag => {
+              for (let j = 0; j < item.result.tags.length; j++) {
+                const tag = item.result.tags[j];
                 if (tag) tags.push(String(tag));
-              });
+              }
             }
             results.autoTags = { tags };
           } 
@@ -82,7 +84,7 @@ export function useAiResultsQuery(candidateId: string) {
               summary: String(item.result.summary || "")
             };
           }
-        });
+        }
       }
 
       return results;
