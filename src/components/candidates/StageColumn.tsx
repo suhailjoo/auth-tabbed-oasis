@@ -1,11 +1,13 @@
 
 import React from "react";
+import { useDroppable } from "@dnd-kit/core";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import CandidateCard from "./CandidateCard";
 import { Candidate } from "@/hooks/useCandidatesQuery";
 
 interface StageColumnProps {
   title: string;
+  stageId: string;
   candidates: Candidate[];
   count: number;
 }
@@ -37,14 +39,24 @@ const stageIcons = {
   rejected: "❌",
 };
 
-const StageColumn = ({ title, candidates, count }: StageColumnProps) => {
-  const stageKey = title.toLowerCase() as keyof typeof stageBgColors;
+const StageColumn = ({ title, stageId, candidates, count }: StageColumnProps) => {
+  const stageKey = stageId as keyof typeof stageBgColors;
   const bgColorClass = stageBgColors[stageKey] || "bg-gray-50 border-gray-200";
   const headerColorClass = stageHeaderColors[stageKey] || "text-gray-700 border-gray-200 bg-gray-100/50";
   const stageIcon = stageIcons[stageKey] || "📋";
+  
+  // Set up droppable for this column
+  const { isOver, setNodeRef } = useDroppable({
+    id: stageId,
+  });
+  
+  // Add visual feedback for drag hover
+  const dropIndicatorClass = isOver 
+    ? "ring-2 ring-primary ring-inset bg-primary/5" 
+    : "";
 
   return (
-    <Card className={`h-full flex flex-col shadow-md ${bgColorClass}`}>
+    <Card className={`h-full flex flex-col shadow-md ${bgColorClass} ${dropIndicatorClass} transition-all duration-200`} ref={setNodeRef}>
       <CardHeader className={`pb-2 border-b ${headerColorClass}`}>
         <CardTitle className="text-sm font-medium flex justify-between items-center">
           <span className="flex items-center">
@@ -63,7 +75,10 @@ const StageColumn = ({ title, candidates, count }: StageColumnProps) => {
           </div>
         ) : (
           candidates.map((candidate) => (
-            <CandidateCard key={candidate.id} candidate={candidate} />
+            <CandidateCard 
+              key={candidate.id} 
+              candidate={candidate} 
+            />
           ))
         )}
       </CardContent>
