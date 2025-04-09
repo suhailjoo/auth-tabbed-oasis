@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -118,6 +120,10 @@
   .tabs-trigger[data-state="active"] {
     @apply bg-white shadow-md text-primary;
   }
+  
+  .font-roboto {
+    font-family: 'Roboto', sans-serif;
+  }
 }
 
 @keyframes card-appear {
@@ -151,4 +157,8 @@
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
 }

@@ -13,6 +13,13 @@ const AuthPage = () => {
         
         <CardHeader className="space-y-1 relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-highlight-yellow" />
+          
+          <div className="text-center mb-4">
+            <h1 className="text-3xl font-roboto font-bold text-gray-800">
+              hatch<span className="text-primary">.</span>
+            </h1>
+          </div>
+          
           <CardTitle className="text-2xl font-bold text-center text-gray-800" style={{animationDelay: '0.1s', animation: 'fade-in 0.5s forwards'}}>
             Welcome
           </CardTitle>
