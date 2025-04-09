@@ -24,12 +24,6 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
-// Simplified type for database response to avoid deep type instantiation
-interface WorkflowJobResult {
-  job_type: string;
-  result: any; // Using 'any' here to avoid type instantiation depth issues
-}
-
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -38,6 +32,7 @@ export function useAiResultsQuery(candidateId: string) {
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
       // Fetch records from workflow_jobs table with minimal type information
+      // Using `any` in the type assertion to avoid excessive type instantiation
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
@@ -58,11 +53,12 @@ export function useAiResultsQuery(candidateId: string) {
 
       // Process each result based on job_type
       if (data) {
-        const typedData = data as WorkflowJobResult[];
+        // Use any[] type to avoid deep type instantiation
+        const jobResults = data as any[];
         
-        for (const item of typedData) {
+        for (const item of jobResults) {
           if (item.job_type === "role_fit_score" && item.result) {
-            // Construct a properly typed object
+            // Explicitly create a properly typed object for role fit score
             results.roleFitScore = {
               fit_score: item.result.fit_score !== undefined 
                 ? String(item.result.fit_score) 
@@ -75,13 +71,16 @@ export function useAiResultsQuery(candidateId: string) {
                 : ""
             };
           } else if (item.job_type === "auto_tag_candidate" && item.result) {
-            // For tags array
-            const tags = Array.isArray(item.result.tags) 
-              ? item.result.tags.map((tag: any) => String(tag))
-              : [];
-              
-            results.autoTags = { tags };
+            // For tags array, handle different potential formats safely
+            let tagsList: string[] = [];
+            
+            if (Array.isArray(item.result.tags)) {
+              tagsList = item.result.tags.map((tag: any) => String(tag));
+            }
+            
+            results.autoTags = { tags: tagsList };
           } else if (item.job_type === "post_interview_summary" && item.result) {
+            // Explicitly create a properly typed object for interview summary
             results.interviewSummary = {
               summary: typeof item.result.summary === 'string' 
                 ? item.result.summary 
