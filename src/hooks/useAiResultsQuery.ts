@@ -24,10 +24,10 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
-// Type for raw database response
-interface WorkflowJob {
+// Simplified type for database response to avoid deep type instantiation
+interface WorkflowJobResult {
   job_type: string;
-  result: Record<string, unknown> | null;
+  result: any; // Using 'any' here to avoid type instantiation depth issues
 }
 
 export function useAiResultsQuery(candidateId: string) {
@@ -37,7 +37,7 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Fetch records from workflow_jobs table
+      // Fetch records from workflow_jobs table with minimal type information
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
@@ -58,8 +58,11 @@ export function useAiResultsQuery(candidateId: string) {
 
       // Process each result based on job_type
       if (data) {
-        for (const item of data as WorkflowJob[]) {
+        const typedData = data as WorkflowJobResult[];
+        
+        for (const item of typedData) {
           if (item.job_type === "role_fit_score" && item.result) {
+            // Construct a properly typed object
             results.roleFitScore = {
               fit_score: item.result.fit_score !== undefined 
                 ? String(item.result.fit_score) 
@@ -72,11 +75,12 @@ export function useAiResultsQuery(candidateId: string) {
                 : ""
             };
           } else if (item.job_type === "auto_tag_candidate" && item.result) {
-            results.autoTags = {
-              tags: Array.isArray(item.result.tags) 
-                ? item.result.tags.map(tag => String(tag)) 
-                : []
-            };
+            // For tags array
+            const tags = Array.isArray(item.result.tags) 
+              ? item.result.tags.map((tag: any) => String(tag))
+              : [];
+              
+            results.autoTags = { tags };
           } else if (item.job_type === "post_interview_summary" && item.result) {
             results.interviewSummary = {
               summary: typeof item.result.summary === 'string' 
