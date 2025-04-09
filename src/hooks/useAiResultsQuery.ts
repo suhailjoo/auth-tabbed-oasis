@@ -52,22 +52,22 @@ export function useAiResultsQuery(candidateId: string) {
       // Process each result based on job_type with explicit construction
       for (const item of data) {
         if (item.job_type === "role_fit_score" && item.result) {
-          // Safe type handling
-          const result = item.result as any;
+          // Safe type handling with explicit type casting
+          const rawResult = item.result as Record<string, any>;
           results.roleFitScore = {
-            fit_score: typeof result.fit_score !== 'undefined' ? result.fit_score : "N/A",
-            verdict: typeof result.verdict === 'string' ? result.verdict : "",
-            justification: typeof result.justification === 'string' ? result.justification : ""
+            fit_score: typeof rawResult.fit_score !== 'undefined' ? rawResult.fit_score : "N/A",
+            verdict: typeof rawResult.verdict === 'string' ? rawResult.verdict : "",
+            justification: typeof rawResult.justification === 'string' ? rawResult.justification : ""
           };
         } else if (item.job_type === "auto_tag_candidate" && item.result) {
-          const result = item.result as any;
+          const rawResult = item.result as Record<string, any>;
           results.autoTags = {
-            tags: Array.isArray(result.tags) ? result.tags : []
+            tags: Array.isArray(rawResult.tags) ? rawResult.tags : []
           };
         } else if (item.job_type === "post_interview_summary" && item.result) {
-          const result = item.result as any;
+          const rawResult = item.result as Record<string, any>;
           results.interviewSummary = {
-            summary: typeof result.summary === 'string' ? result.summary : ""
+            summary: typeof rawResult.summary === 'string' ? rawResult.summary : ""
           };
         }
       }
