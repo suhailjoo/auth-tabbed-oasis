@@ -106,8 +106,8 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                       asChild
                       className="transition-all hover:translate-x-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:text-center"
                     >
-                      <Link to={item.path} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center">
-                        <item.icon className="text-white mx-auto" />
+                      <Link to={item.path} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                        <item.icon className="text-white" />
                         <span className="text-white font-medium">
                           {item.name}
                         </span>
@@ -128,7 +128,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 variant="outline"
                 className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-full"
               >
-                <LogOut className="h-4 w-4 group-data-[collapsible=icon]:mx-auto" />
+                <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
               </SidebarMenuButton>
             </div>
