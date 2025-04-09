@@ -10,9 +10,12 @@ export function useUpdateCandidateNotesMutation() {
 
   return useMutation({
     mutationFn: async ({ candidateId, notes }: { candidateId: string; notes: string }) => {
+      // Create a properly typed update object
+      const updateData = { notes };
+      
       const { data, error } = await supabase
         .from("candidates")
-        .update({ notes })
+        .update(updateData)
         .eq("id", candidateId)
         .eq("org_id", orgId)
         .select()

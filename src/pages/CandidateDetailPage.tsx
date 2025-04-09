@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, FileText, Clipboard, MessageSquare, BarChart2, User, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,7 @@ const CandidateDetailPage = () => {
   const { data: aiResults, isLoading: isLoadingAi } = useAiResultsQuery(id || "");
   const updateNotesMutation = useUpdateCandidateNotesMutation();
   
-  // Set notes when candidate data is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (candidate?.notes) {
       setNotes(candidate.notes);
     }
@@ -47,7 +45,6 @@ const CandidateDetailPage = () => {
     updateNotesMutation.mutate({ candidateId: id, notes });
   };
 
-  // Handle error state
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] gap-4">
@@ -59,7 +56,6 @@ const CandidateDetailPage = () => {
     );
   }
 
-  // Extract initials for avatar
   const initials = candidate?.name
     ? candidate.name
         .split(' ')
