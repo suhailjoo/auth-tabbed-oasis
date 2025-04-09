@@ -69,6 +69,16 @@ const App = () => (
               } 
             />
             <Route 
+              path="/jobs/:jobId/pipeline" 
+              element={
+                <AuthGuard>
+                  <AuthLayout>
+                    <div className="p-6">Job Pipeline Page (Coming Soon)</div>
+                  </AuthLayout>
+                </AuthGuard>
+              } 
+            />
+            <Route 
               path="/candidates" 
               element={
                 <AuthGuard>
