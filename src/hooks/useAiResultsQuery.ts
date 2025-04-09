@@ -24,13 +24,6 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
-// Define a very simple type for our database query
-// to avoid excessive type nesting
-type SimpleQueryResponse = {
-  job_type: string;
-  result: Record<string, unknown>;
-}
-
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -38,7 +31,7 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Use a simple generic type to avoid complex type inference
+      // Use a simple approach with no complex typing to avoid deep type instantiation
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
@@ -59,13 +52,13 @@ export function useAiResultsQuery(candidateId: string) {
 
       // Process each result based on job_type
       if (data) {
-        // Use explicit cast to avoid type inference issues
-        const jobResults = data as SimpleQueryResponse[];
+        // Use any to avoid type inference issues completely
+        const jobResults = data as any[];
         
         for (const item of jobResults) {
           if (item.job_type === "role_fit_score" && item.result) {
             // Handle role fit score results
-            const fitScore = typeof item.result.fit_score !== 'undefined' 
+            const fitScore = item.result.fit_score !== undefined 
               ? String(item.result.fit_score) 
               : "N/A";
             
@@ -84,7 +77,7 @@ export function useAiResultsQuery(candidateId: string) {
             let tagsList: string[] = [];
             
             if (item.result.tags && Array.isArray(item.result.tags)) {
-              tagsList = (item.result.tags as unknown[]).map(tag => String(tag));
+              tagsList = item.result.tags.map(tag => String(tag));
             }
             
             results.autoTags = { tags: tagsList };
