@@ -24,12 +24,6 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
-// Define a simple result type to avoid deep type inference
-type WorkflowJobResult = {
-  job_type: string;
-  result: any;
-}
-
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -37,16 +31,16 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Use explicit any type to avoid TypeScript's deep type checking
-      const { data, error } = await supabase
+      // Use PostgrestResponse<any> to avoid TypeScript's deep type checking
+      const response: { data: any[] | null; error: any } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
         .eq("payload->candidate_id", candidateId);
       
-      if (error) {
-        throw error;
+      if (response.error) {
+        throw response.error;
       }
 
       // Initialize results with null values
@@ -56,13 +50,10 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Safely process the data with explicit typing
-      if (data) {
-        // Cast to simple array type to avoid inference issues
-        const items = data as WorkflowJobResult[];
-        
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
+      // Process data with explicit manual type handling
+      if (response.data && Array.isArray(response.data)) {
+        for (let i = 0; i < response.data.length; i++) {
+          const item = response.data[i];
           
           if (item.job_type === "role_fit_score" && item.result) {
             results.roleFitScore = {
