@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage";
 import JobsPage from "./pages/JobsPage";
 import CreateJobPage from "./pages/CreateJobPage";
 import CandidatesPage from "./pages/CandidatesPage";
+import JobPipelinePage from "./pages/JobPipelinePage";
 import NotFound from "./pages/NotFound";
 import AuthProvider from "./components/auth/AuthProvider";
 import AuthGuard from "./components/auth/AuthGuard";
@@ -73,7 +74,7 @@ const App = () => (
               element={
                 <AuthGuard>
                   <AuthLayout>
-                    <div className="p-6">Job Pipeline Page (Coming Soon)</div>
+                    <JobPipelinePage />
                   </AuthLayout>
                 </AuthGuard>
               } 
