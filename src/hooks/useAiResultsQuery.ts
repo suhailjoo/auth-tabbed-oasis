@@ -31,16 +31,16 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Use a simple approach with no complex typing to avoid deep type instantiation
-      const { data, error } = await supabase
+      // Bypass TypeScript's typing completely by using a simple type annotation
+      const response = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
         .eq("payload->candidate_id", candidateId);
-
-      if (error) {
-        throw error;
+      
+      if (response.error) {
+        throw response.error;
       }
 
       // Initialize results with null values
@@ -50,45 +50,39 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Process each result based on job_type
-      if (data) {
-        // Use any to avoid type inference issues completely
-        const jobResults = data as any[];
-        
-        for (const item of jobResults) {
-          if (item.job_type === "role_fit_score" && item.result) {
+      // Process each result based on job_type using a basic for loop
+      // with explicit type handling to avoid inference issues
+      if (response.data) {
+        for (let i = 0; i < response.data.length; i++) {
+          const item = response.data[i];
+          const jobType = item.job_type as string;
+          const result = item.result as Record<string, any>;
+          
+          if (jobType === "role_fit_score" && result) {
             // Handle role fit score results
-            const fitScore = item.result.fit_score !== undefined 
-              ? String(item.result.fit_score) 
-              : "N/A";
-            
-            const verdict = typeof item.result.verdict === 'string' 
-              ? item.result.verdict 
-              : "";
-              
-            const justification = typeof item.result.justification === 'string' 
-              ? item.result.justification 
-              : "";
-            
-            results.roleFitScore = { fit_score: fitScore, verdict, justification };
+            results.roleFitScore = {
+              fit_score: result.fit_score != null ? String(result.fit_score) : "N/A",
+              verdict: typeof result.verdict === 'string' ? result.verdict : "",
+              justification: typeof result.justification === 'string' ? result.justification : ""
+            };
           } 
-          else if (item.job_type === "auto_tag_candidate" && item.result) {
+          else if (jobType === "auto_tag_candidate" && result) {
             // Handle auto tags results
-            let tagsList: string[] = [];
+            const tagsList: string[] = [];
             
-            if (item.result.tags && Array.isArray(item.result.tags)) {
-              tagsList = item.result.tags.map(tag => String(tag));
+            if (result.tags && Array.isArray(result.tags)) {
+              for (let j = 0; j < result.tags.length; j++) {
+                tagsList.push(String(result.tags[j]));
+              }
             }
             
             results.autoTags = { tags: tagsList };
           } 
-          else if (item.job_type === "post_interview_summary" && item.result) {
+          else if (jobType === "post_interview_summary" && result) {
             // Handle interview summary results
-            const summary = typeof item.result.summary === 'string' 
-              ? item.result.summary 
-              : "";
-              
-            results.interviewSummary = { summary };
+            results.interviewSummary = {
+              summary: typeof result.summary === 'string' ? result.summary : ""
+            };
           }
         }
       }
