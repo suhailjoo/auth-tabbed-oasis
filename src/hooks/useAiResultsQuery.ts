@@ -37,13 +37,13 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Using a generic type param instead of `.returns<>` to avoid deep inference
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
-        .eq("payload->candidate_id", candidateId);
+        .eq("payload->candidate_id", candidateId)
+        .returns<SimpleWorkflowJob[]>();
       
       if (error) {
         throw error;
@@ -56,33 +56,34 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Safely process the data with explicit typing
-      if (data && Array.isArray(data)) {
-        for (let i = 0; i < data.length; i++) {
-          const item = data[i] as SimpleWorkflowJob;
-          
-          if (item.job_type === "role_fit_score" && item.result) {
-            results.roleFitScore = {
-              fit_score: item.result.fit_score ?? "N/A",
-              verdict: String(item.result.verdict || ""),
-              justification: String(item.result.justification || "")
-            };
-          } 
-          else if (item.job_type === "auto_tag_candidate" && item.result) {
-            // Handle tags array safely
-            const tags: string[] = [];
-            if (item.result.tags && Array.isArray(item.result.tags)) {
-              for (let j = 0; j < item.result.tags.length; j++) {
-                const tag = item.result.tags[j];
-                if (tag) tags.push(String(tag));
+      // Process the data with explicit typing
+      if (data) {
+        for (const item of data) {
+          switch (item.job_type) {
+            case "role_fit_score":
+              if (item.result) {
+                results.roleFitScore = {
+                  fit_score: item.result.fit_score ?? "N/A",
+                  verdict: String(item.result.verdict || ""),
+                  justification: String(item.result.justification || "")
+                };
               }
-            }
-            results.autoTags = { tags };
-          } 
-          else if (item.job_type === "post_interview_summary" && item.result) {
-            results.interviewSummary = {
-              summary: String(item.result.summary || "")
-            };
+              break;
+            case "auto_tag_candidate":
+              if (item.result) {
+                const tags: string[] = Array.isArray(item.result.tags) 
+                  ? item.result.tags.map((tag: any) => String(tag || ""))
+                  : [];
+                results.autoTags = { tags };
+              }
+              break;
+            case "post_interview_summary":
+              if (item.result) {
+                results.interviewSummary = {
+                  summary: String(item.result.summary || "")
+                };
+              }
+              break;
           }
         }
       }
