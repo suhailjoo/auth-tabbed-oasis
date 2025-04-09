@@ -9,6 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      jobs: {
+        Row: {
+          created_at: string
+          created_by: string
+          department: string | null
+          description: string
+          employment_type: string
+          experience_level: string | null
+          id: string
+          location: string
+          org_id: string
+          preferred_skills: string | null
+          required_skills: string | null
+          salary_budget: number | null
+          salary_currency: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          department?: string | null
+          description: string
+          employment_type: string
+          experience_level?: string | null
+          id?: string
+          location: string
+          org_id: string
+          preferred_skills?: string | null
+          required_skills?: string | null
+          salary_budget?: number | null
+          salary_currency?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          department?: string | null
+          description?: string
+          employment_type?: string
+          experience_level?: string | null
+          id?: string
+          location?: string
+          org_id?: string
+          preferred_skills?: string | null
+          required_skills?: string | null
+          salary_budget?: number | null
+          salary_currency?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -55,6 +117,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "users_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_jobs: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string | null
+          job_type: string
+          org_id: string
+          payload: Json | null
+          result: Json | null
+          status: string
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          job_type: string
+          org_id: string
+          payload?: Json | null
+          result?: Json | null
+          status: string
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          job_type?: string
+          org_id?: string
+          payload?: Json | null
+          result?: Json | null
+          status?: string
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_jobs_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"

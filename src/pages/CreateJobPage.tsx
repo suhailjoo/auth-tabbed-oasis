@@ -30,6 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { JobFormData, useCreateJobMutation } from "@/hooks/useCreateJobMutation";
+import { useAuthStore } from "@/state/useAuthStore";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 // Define the form schema using zod
 const formSchema = z.object({
@@ -59,6 +63,17 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const CreateJobPage = () => {
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { createJob, isLoading } = useCreateJobMutation();
+
+  // Check if user is authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,8 +91,7 @@ const CreateJobPage = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
-    // In a real implementation, this would send the data to the backend
+    createJob(data as JobFormData);
   };
 
   return (
@@ -325,8 +339,12 @@ const CreateJobPage = () => {
               />
             </CardContent>
             <CardFooter className="flex justify-end border-t pt-6">
-              <Button type="submit" className="w-full sm:w-auto" disabled={!form.formState.isValid}>
-                Create Job
+              <Button 
+                type="submit" 
+                className="w-full sm:w-auto" 
+                disabled={!form.formState.isValid || isLoading}
+              >
+                {isLoading ? "Creating Job..." : "Create Job"}
               </Button>
             </CardFooter>
           </Card>
