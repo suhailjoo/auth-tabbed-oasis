@@ -53,19 +53,19 @@ export function useAiResultsQuery(candidateId: string) {
       for (const item of data) {
         if (item.job_type === "role_fit_score" && item.result) {
           // Safe type handling with explicit type casting
-          const rawResult = item.result as Record<string, any>;
+          const rawResult = item.result as Record<string, unknown>;
           results.roleFitScore = {
-            fit_score: typeof rawResult.fit_score !== 'undefined' ? rawResult.fit_score : "N/A",
+            fit_score: rawResult.fit_score !== undefined ? rawResult.fit_score as string | number : "N/A",
             verdict: typeof rawResult.verdict === 'string' ? rawResult.verdict : "",
             justification: typeof rawResult.justification === 'string' ? rawResult.justification : ""
           };
         } else if (item.job_type === "auto_tag_candidate" && item.result) {
-          const rawResult = item.result as Record<string, any>;
+          const rawResult = item.result as Record<string, unknown>;
           results.autoTags = {
-            tags: Array.isArray(rawResult.tags) ? rawResult.tags : []
+            tags: Array.isArray(rawResult.tags) ? rawResult.tags as string[] : []
           };
         } else if (item.job_type === "post_interview_summary" && item.result) {
-          const rawResult = item.result as Record<string, any>;
+          const rawResult = item.result as Record<string, unknown>;
           results.interviewSummary = {
             summary: typeof rawResult.summary === 'string' ? rawResult.summary : ""
           };
