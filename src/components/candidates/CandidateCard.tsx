@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 import { useDraggable } from "@dnd-kit/core";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,9 +83,16 @@ const CandidateCard = ({ candidate, isDragging = false }: CandidateCardProps) =>
         )}
       </CardContent>
       <CardFooter className="pt-0 pb-3 justify-end">
-        <Button variant="ghost" size="sm" className="text-xs hover:bg-primary/10 hover:text-primary">
-          View Details
-          <ChevronRight className="h-3 w-3 ml-1" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs hover:bg-primary/10 hover:text-primary" 
+          asChild
+        >
+          <Link to={`/candidates/${candidate.id}`}>
+            View Details
+            <ChevronRight className="h-3 w-3 ml-1" />
+          </Link>
         </Button>
       </CardFooter>
     </Card>
