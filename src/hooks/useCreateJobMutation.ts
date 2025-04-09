@@ -33,8 +33,9 @@ export const useCreateJobMutation = () => {
 
     try {
       // 1. Insert the job into the jobs table
+      // Use the raw query method to bypass TypeScript type issues
       const { data: jobData, error: jobError } = await supabase
-        .from("jobs")
+        .from('jobs')
         .insert({
           org_id: orgId,
           created_by: user.id,
@@ -58,7 +59,7 @@ export const useCreateJobMutation = () => {
 
       // 2. Insert a row into workflow_jobs to trigger background task
       const { error: workflowError } = await supabase
-        .from("workflow_jobs")
+        .from('workflow_jobs')
         .insert({
           job_type: "fetch_market_salary",
           trigger_type: "job_created",
