@@ -33,7 +33,22 @@ export const useCandidatesQuery = (jobId: string) => {
         throw error;
       }
 
-      return data || [];
+      // Validate that each stage value is one of the allowed values
+      // and cast the data to the Candidate type
+      const candidates = data?.map(candidate => {
+        // Ensure stage is one of the valid enum values
+        const validStages = ["applied", "screening", "interview", "offer", "hired", "rejected"];
+        const stage = validStages.includes(candidate.stage) 
+          ? candidate.stage as Candidate["stage"] 
+          : "applied"; // Default to "applied" if the stage is invalid
+        
+        return {
+          ...candidate,
+          stage
+        } as Candidate;
+      }) || [];
+
+      return candidates;
     },
     enabled: !!orgId && !!jobId,
   });
