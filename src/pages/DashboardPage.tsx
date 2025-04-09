@@ -1,44 +1,38 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/state/useAuthStore';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 
 const DashboardPage = () => {
-  const { user, orgId, clearAuth } = useAuthStore();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user || !orgId) {
-      navigate('/auth');
-    }
-  }, [user, orgId, navigate]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    clearAuth();
-    navigate('/auth');
-  };
-
-  if (!user || !orgId) {
-    return null;
-  }
+  const { user, orgId } = useAuthStore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/10 via-white to-primary/10 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-roboto font-bold text-gray-800">
-            hatch<span className="text-primary">.</span>
-          </h1>
-          <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome to your organization dashboard
+        </p>
+      </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+          <h3 className="font-semibold text-lg">Account Information</h3>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Email:</span>
+              <span className="font-medium">{user?.email}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Organization ID:</span>
+              <span className="font-medium">{orgId}</span>
+            </div>
+          </div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-semibold mb-4">Welcome to your Dashboard</h2>
-          <p className="text-gray-600 mb-2">Logged in as: {user.email}</p>
-          <p className="text-gray-600">Organization ID: {orgId}</p>
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+          <h3 className="font-semibold text-lg">Getting Started</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your account is ready. Start by creating a job posting or adding candidate profiles.
+          </p>
         </div>
       </div>
     </div>

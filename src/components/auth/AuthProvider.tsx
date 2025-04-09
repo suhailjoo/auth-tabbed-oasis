@@ -10,12 +10,15 @@ type AuthProviderProps = {
 };
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { user, orgId, setAuth, clearAuth } = useAuthStore();
+  const { user, orgId, setAuth, clearAuth, hydrate } = useAuthStore();
   const navigate = useNavigate();
 
   // Initialize auth state
   useEffect(() => {
-    // Set up auth state listener first
+    // Hydrate auth state on mount
+    hydrate();
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
@@ -52,35 +55,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
     );
-
-    // Check for existing session
-    const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        try {
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('org_id, name')
-            .eq('user_id', session.user.id)
-            .single();
-
-          if (userError) throw userError;
-          
-          if (userData) {
-            setAuth(session.user, userData.org_id);
-          } else {
-            console.error('User exists but no profile found');
-            clearAuth();
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          clearAuth();
-        }
-      }
-    };
-
-    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
