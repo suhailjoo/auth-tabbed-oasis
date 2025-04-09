@@ -51,12 +51,12 @@ export function useAiResultsQuery(candidateId: string) {
       // Process each result based on job_type
       data.forEach(item => {
         if (item.job_type === "role_fit_score" && item.result) {
-          // Use type assertion without circular references
-          results.roleFitScore = item.result as any as RoleFitScore;
+          // Use simpler type casting to avoid deep nesting issues
+          results.roleFitScore = item.result as RoleFitScore;
         } else if (item.job_type === "auto_tag_candidate" && item.result) {
-          results.autoTags = item.result as any as AutoTags;
+          results.autoTags = item.result as AutoTags;
         } else if (item.job_type === "post_interview_summary" && item.result) {
-          results.interviewSummary = item.result as any as InterviewSummary;
+          results.interviewSummary = item.result as InterviewSummary;
         }
       });
 

@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, Clipboard, MessageSquare, BarChart2, User, FileDown } from "lucide-react";
+import { ArrowLeft, FileText, Clipboard, MessageSquare, BarChart2, User, FileDown, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCandidateQuery, Candidate } from "@/hooks/useCandidateQuery";
 import { useUpdateCandidateNotesMutation } from "@/hooks/useUpdateCandidateNotesMutation";
 import { useAiResultsQuery } from "@/hooks/useAiResultsQuery";
@@ -165,15 +167,30 @@ const CandidateDetailPage = () => {
 
         <TabsContent value="resume" className="mt-6">
           <Card className="border border-gray-100 shadow-sm">
-            <CardHeader className="border-b bg-muted/20">
+            <CardHeader className="border-b bg-muted/20 flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary/70" />
                 <span>Résumé</span>
               </CardTitle>
+              {!isLoading && candidate?.resume_url && (
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-sm"
+                    onClick={() => window.open(candidate.resume_url, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open in New Tab
+                  </Button>
+                </div>
+              )}
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-0">
               {isLoading ? (
-                <Skeleton className="h-64 w-full" />
+                <div className="p-6">
+                  <Skeleton className="h-64 w-full" />
+                </div>
               ) : !candidate?.resume_url ? (
                 <div className="bg-accent/10 p-8 rounded-md text-center">
                   <FileText className="h-16 w-16 text-primary/40 mx-auto mb-3" />
@@ -184,23 +201,37 @@ const CandidateDetailPage = () => {
                   </Button>
                 </div>
               ) : isPdf ? (
-                <iframe 
-                  src={candidate.resume_url} 
-                  className="w-full h-[600px] border rounded-md"
-                  title={`${candidate.name || 'Candidate'}'s Resume`}
-                />
+                <div className="relative">
+                  <div className="bg-gray-50 p-2 border-b flex justify-center items-center">
+                    <span className="text-sm text-gray-500 truncate max-w-md">
+                      {candidate.resume_url.split('/').pop() || 'Resume.pdf'}
+                    </span>
+                  </div>
+                  <div className="relative h-[600px] overflow-hidden rounded-b-md">
+                    <iframe 
+                      src={candidate.resume_url} 
+                      className="w-full h-full border-0"
+                      title={`${candidate.name || 'Candidate'}'s Resume`}
+                    />
+                  </div>
+                </div>
               ) : (
-                <div className="bg-accent/10 p-8 rounded-md text-center">
-                  <FileDown className="h-16 w-16 text-primary/40 mx-auto mb-3" />
-                  <p className="text-muted-foreground font-medium mb-2">Resume is available for download</p>
-                  <Button 
-                    className="mt-4" 
-                    size="sm" 
-                    onClick={() => window.open(candidate.resume_url, '_blank')}
-                  >
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Download Resume
-                  </Button>
+                <div className="bg-gradient-to-b from-accent/5 to-accent/20 p-8 rounded-md text-center">
+                  <div className="bg-white/50 p-6 rounded-lg shadow-sm border border-accent/20 max-w-md mx-auto">
+                    <FileDown className="h-16 w-16 text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">Resume Available for Download</h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                      This resume can be downloaded to view its contents. Click the button below to download.
+                    </p>
+                    <Button 
+                      className="w-full" 
+                      size="sm" 
+                      onClick={() => window.open(candidate.resume_url, '_blank')}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Resume
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
