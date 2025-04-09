@@ -34,7 +34,7 @@ const SidebarLogo = () => {
       <h1 className="text-2xl font-bold text-sidebar-foreground">
         {state === "collapsed" ? (
           <>
-            h<span className="text-primary">.</span>
+            h<span className="text-[navy]">.</span>
           </>
         ) : (
           <>
@@ -104,11 +104,13 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                       isActive={location.pathname === item.path}
                       tooltip={item.name}
                       asChild
-                      className="transition-all hover:translate-x-1 group-data-[collapsible=icon]:justify-center"
+                      className="transition-all hover:translate-x-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:text-center"
                     >
-                      <Link to={item.path}>
+                      <Link to={item.path} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                         <item.icon className="text-white" />
-                        <span className="text-white font-medium">{item.name}</span>
+                        <span className="text-white font-medium">
+                          {item.name}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -124,7 +126,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 tooltip="Sign out"
                 size="default"
                 variant="outline"
-                className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white group-data-[collapsible=icon]:justify-center"
+                className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-full"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
