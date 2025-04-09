@@ -37,13 +37,13 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
+      // Using explicit type casting instead of .returns<> to avoid deep inference
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
-        .eq("payload->candidate_id", candidateId)
-        .returns<SimpleWorkflowJob[]>();
+        .eq("payload->candidate_id", candidateId);
       
       if (error) {
         throw error;
@@ -56,9 +56,11 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Process the data with explicit typing
-      if (data) {
-        for (const item of data) {
+      // Process the data with explicit type handling and casting
+      if (data && Array.isArray(data)) {
+        const typedData = data as SimpleWorkflowJob[];
+        
+        for (const item of typedData) {
           switch (item.job_type) {
             case "role_fit_score":
               if (item.result) {
