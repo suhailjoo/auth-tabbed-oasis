@@ -24,6 +24,12 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
+// Define a simple result type to avoid deep type inference
+type WorkflowJobResult = {
+  job_type: string;
+  result: any;
+}
+
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -31,16 +37,16 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Bypass TypeScript's typing completely by using a simple type annotation
-      const response = await supabase
+      // Use explicit any type to avoid TypeScript's deep type checking
+      const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
         .eq("org_id", orgId)
         .in("job_type", ["role_fit_score", "auto_tag_candidate", "post_interview_summary"])
         .eq("payload->candidate_id", candidateId);
       
-      if (response.error) {
-        throw response.error;
+      if (error) {
+        throw error;
       }
 
       // Initialize results with null values
@@ -50,38 +56,36 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Process each result based on job_type using a basic for loop
-      // with explicit type handling to avoid inference issues
-      if (response.data) {
-        for (let i = 0; i < response.data.length; i++) {
-          const item = response.data[i];
-          const jobType = item.job_type as string;
-          const result = item.result as Record<string, any>;
+      // Safely process the data with explicit typing
+      if (data) {
+        // Cast to simple array type to avoid inference issues
+        const items = data as WorkflowJobResult[];
+        
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
           
-          if (jobType === "role_fit_score" && result) {
-            // Handle role fit score results
+          if (item.job_type === "role_fit_score" && item.result) {
             results.roleFitScore = {
-              fit_score: result.fit_score != null ? String(result.fit_score) : "N/A",
-              verdict: typeof result.verdict === 'string' ? result.verdict : "",
-              justification: typeof result.justification === 'string' ? result.justification : ""
+              fit_score: item.result.fit_score != null ? item.result.fit_score : "N/A",
+              verdict: typeof item.result.verdict === 'string' ? item.result.verdict : "",
+              justification: typeof item.result.justification === 'string' ? item.result.justification : ""
             };
           } 
-          else if (jobType === "auto_tag_candidate" && result) {
-            // Handle auto tags results
+          else if (item.job_type === "auto_tag_candidate" && item.result) {
+            // Handle tags with explicit type safety
             const tagsList: string[] = [];
             
-            if (result.tags && Array.isArray(result.tags)) {
-              for (let j = 0; j < result.tags.length; j++) {
-                tagsList.push(String(result.tags[j]));
+            if (item.result.tags && Array.isArray(item.result.tags)) {
+              for (let j = 0; j < item.result.tags.length; j++) {
+                tagsList.push(String(item.result.tags[j]));
               }
             }
             
             results.autoTags = { tags: tagsList };
           } 
-          else if (jobType === "post_interview_summary" && result) {
-            // Handle interview summary results
+          else if (item.job_type === "post_interview_summary" && item.result) {
             results.interviewSummary = {
-              summary: typeof result.summary === 'string' ? result.summary : ""
+              summary: typeof item.result.summary === 'string' ? item.result.summary : ""
             };
           }
         }
