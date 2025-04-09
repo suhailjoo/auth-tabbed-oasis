@@ -8,7 +8,7 @@ import SignupForm from "@/components/auth/SignupForm";
 const AuthPage = () => {
   return (
     <AuthLayout>
-      <Card className="auth-card w-full border-none overflow-hidden">
+      <Card className="auth-card w-full border-none overflow-hidden shadow-[0_20px_50px_rgba(92,149,255,0.3)]">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none rounded-2xl" />
         
         <CardHeader className="space-y-1 relative">
