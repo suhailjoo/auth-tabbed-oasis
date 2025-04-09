@@ -16,7 +16,8 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarSeparator,
-  SidebarTrigger
+  SidebarTrigger,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -25,11 +26,28 @@ interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
+const SidebarLogo = () => {
+  const { state } = useSidebar();
+  
+  return (
+    <div className="flex h-16 items-center px-4">
+      <h1 className="text-2xl font-bold text-sidebar-foreground">
+        {state === "collapsed" ? (
+          "h<span className='text-primary'>.</span>"
+        ) : (
+          <>
+            hatch<span className="text-primary">.</span>
+          </>
+        )}
+      </h1>
+    </div>
+  );
+};
+
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleSignOut = async () => {
     try {
@@ -68,20 +86,12 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     },
   ];
 
-  const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
-    <SidebarProvider defaultOpen={isExpanded}>
+    <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar variant="sidebar" collapsible="icon" side="left">
           <SidebarHeader>
-            <div className="flex h-16 items-center px-4">
-              <h1 className="text-2xl font-bold text-sidebar-foreground">
-                hatch<span className="text-primary">.</span>
-              </h1>
-            </div>
+            <SidebarLogo />
           </SidebarHeader>
           <SidebarContent className="bg-gradient-to-b from-primary to-primary/80">
             <ScrollArea className="h-full">
