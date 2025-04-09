@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import JobsPage from "./pages/JobsPage";
+import CreateJobPage from "./pages/CreateJobPage";
 import CandidatesPage from "./pages/CandidatesPage";
 import NotFound from "./pages/NotFound";
 import AuthProvider from "./components/auth/AuthProvider";
@@ -53,6 +54,16 @@ const App = () => (
                 <AuthGuard>
                   <AuthLayout>
                     <JobsPage />
+                  </AuthLayout>
+                </AuthGuard>
+              } 
+            />
+            <Route 
+              path="/jobs/create" 
+              element={
+                <AuthGuard>
+                  <AuthLayout>
+                    <CreateJobPage />
                   </AuthLayout>
                 </AuthGuard>
               } 
