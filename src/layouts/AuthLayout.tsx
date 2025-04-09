@@ -30,10 +30,12 @@ const SidebarLogo = () => {
   const { state } = useSidebar();
   
   return (
-    <div className="flex h-16 items-center px-4">
+    <div className="flex h-16 items-center px-4 justify-center">
       <h1 className="text-2xl font-bold text-sidebar-foreground">
         {state === "collapsed" ? (
-          "h<span className='text-primary'>.</span>"
+          <>
+            h<span className="text-primary">.</span>
+          </>
         ) : (
           <>
             hatch<span className="text-primary">.</span>
@@ -102,7 +104,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                       isActive={location.pathname === item.path}
                       tooltip={item.name}
                       asChild
-                      className="transition-all hover:translate-x-1"
+                      className="transition-all hover:translate-x-1 group-data-[collapsible=icon]:justify-center"
                     >
                       <Link to={item.path}>
                         <item.icon className="text-white" />
@@ -122,7 +124,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 tooltip="Sign out"
                 size="default"
                 variant="outline"
-                className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white"
+                className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white group-data-[collapsible=icon]:justify-center"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
