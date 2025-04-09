@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import AuthProvider from "./components/auth/AuthProvider";
 import AuthGuard from "./components/auth/AuthGuard";
 import AuthLayout from "./layouts/AuthLayout";
+import PublicLayout from "./layouts/PublicLayout";
 
 const queryClient = new QueryClient();
 
@@ -24,8 +25,16 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route 
+              path="/auth" 
+              element={
+                <PublicLayout>
+                  <AuthPage />
+                </PublicLayout>
+              } 
+            />
             
             {/* Protected routes */}
             <Route 
