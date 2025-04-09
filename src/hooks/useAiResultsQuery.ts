@@ -3,6 +3,26 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/state/useAuthStore";
 
+interface RoleFitScore {
+  fit_score: number | string;
+  verdict: string;
+  justification: string;
+}
+
+interface AutoTags {
+  tags: string[];
+}
+
+interface InterviewSummary {
+  summary: string;
+}
+
+export interface AiResults {
+  roleFitScore: RoleFitScore | null;
+  autoTags: AutoTags | null;
+  interviewSummary: InterviewSummary | null;
+}
+
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -21,12 +41,23 @@ export function useAiResultsQuery(candidateId: string) {
         throw error;
       }
 
-      // Transform the data into a more usable format
-      const results = {
-        roleFitScore: data.find(item => item.job_type === "role_fit_score")?.result || null,
-        autoTags: data.find(item => item.job_type === "auto_tag_candidate")?.result || null,
-        interviewSummary: data.find(item => item.job_type === "post_interview_summary")?.result || null,
+      // Transform the data into a more usable format with proper typing
+      const results: AiResults = {
+        roleFitScore: null,
+        autoTags: null,
+        interviewSummary: null,
       };
+
+      // Process each result based on job_type
+      data.forEach(item => {
+        if (item.job_type === "role_fit_score" && item.result) {
+          results.roleFitScore = item.result as unknown as RoleFitScore;
+        } else if (item.job_type === "auto_tag_candidate" && item.result) {
+          results.autoTags = item.result as unknown as AutoTags;
+        } else if (item.job_type === "post_interview_summary" && item.result) {
+          results.interviewSummary = item.result as unknown as InterviewSummary;
+        }
+      });
 
       return results;
     },

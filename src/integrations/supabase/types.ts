@@ -16,6 +16,7 @@ export type Database = {
           id: string
           job_id: string
           name: string
+          notes: string | null
           org_id: string
           resume_url: string
           stage: string
@@ -27,6 +28,7 @@ export type Database = {
           id?: string
           job_id: string
           name: string
+          notes?: string | null
           org_id: string
           resume_url: string
           stage?: string
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           job_id?: string
           name?: string
+          notes?: string | null
           org_id?: string
           resume_url?: string
           stage?: string

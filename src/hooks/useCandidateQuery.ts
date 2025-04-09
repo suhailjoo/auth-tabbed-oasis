@@ -2,6 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/state/useAuthStore";
+import { Tables } from "@/integrations/supabase/types";
+
+export type Candidate = Tables<"candidates"> & {
+  notes: string | null;
+  job_title?: string | null;
+};
 
 export function useCandidateQuery(candidateId: string) {
   const { orgId } = useAuthStore();
@@ -21,7 +27,7 @@ export function useCandidateQuery(candidateId: string) {
         throw error;
       }
 
-      return data;
+      return data as Candidate;
     },
   });
 }

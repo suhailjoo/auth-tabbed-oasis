@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCandidateQuery } from "@/hooks/useCandidateQuery";
+import { useCandidateQuery, Candidate } from "@/hooks/useCandidateQuery";
 import { useUpdateCandidateNotesMutation } from "@/hooks/useUpdateCandidateNotesMutation";
 import { useAiResultsQuery } from "@/hooks/useAiResultsQuery";
 
