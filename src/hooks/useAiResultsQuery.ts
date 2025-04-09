@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/state/useAuthStore";
 
+// Define simple interfaces for our AI results
 export interface RoleFitScore {
   fit_score: number | string;
   verdict: string;
@@ -23,6 +24,12 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
+// Type for raw database response
+interface WorkflowJob {
+  job_type: string;
+  result: Record<string, unknown> | null;
+}
+
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -30,7 +37,7 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Simplify the query to avoid deep type instantiation
+      // Fetch records from workflow_jobs table
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
@@ -49,26 +56,34 @@ export function useAiResultsQuery(candidateId: string) {
         interviewSummary: null,
       };
 
-      // Process each result based on job_type with explicit construction
-      for (const item of data) {
-        if (item.job_type === "role_fit_score" && item.result) {
-          // Safe type handling with explicit type casting
-          const rawResult = item.result as Record<string, unknown>;
-          results.roleFitScore = {
-            fit_score: rawResult.fit_score !== undefined ? rawResult.fit_score as string | number : "N/A",
-            verdict: typeof rawResult.verdict === 'string' ? rawResult.verdict : "",
-            justification: typeof rawResult.justification === 'string' ? rawResult.justification : ""
-          };
-        } else if (item.job_type === "auto_tag_candidate" && item.result) {
-          const rawResult = item.result as Record<string, unknown>;
-          results.autoTags = {
-            tags: Array.isArray(rawResult.tags) ? rawResult.tags as string[] : []
-          };
-        } else if (item.job_type === "post_interview_summary" && item.result) {
-          const rawResult = item.result as Record<string, unknown>;
-          results.interviewSummary = {
-            summary: typeof rawResult.summary === 'string' ? rawResult.summary : ""
-          };
+      // Process each result based on job_type
+      if (data) {
+        for (const item of data as WorkflowJob[]) {
+          if (item.job_type === "role_fit_score" && item.result) {
+            results.roleFitScore = {
+              fit_score: item.result.fit_score !== undefined 
+                ? String(item.result.fit_score) 
+                : "N/A",
+              verdict: typeof item.result.verdict === 'string' 
+                ? item.result.verdict 
+                : "",
+              justification: typeof item.result.justification === 'string' 
+                ? item.result.justification 
+                : ""
+            };
+          } else if (item.job_type === "auto_tag_candidate" && item.result) {
+            results.autoTags = {
+              tags: Array.isArray(item.result.tags) 
+                ? item.result.tags.map(tag => String(tag)) 
+                : []
+            };
+          } else if (item.job_type === "post_interview_summary" && item.result) {
+            results.interviewSummary = {
+              summary: typeof item.result.summary === 'string' 
+                ? item.result.summary 
+                : ""
+            };
+          }
         }
       }
 
