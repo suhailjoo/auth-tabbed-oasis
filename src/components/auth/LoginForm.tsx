@@ -49,10 +49,14 @@ const LoginForm = () => {
         if (userError) throw userError;
 
         // Set authentication state
-        setAuth(authData.user, userData.org_id);
-        
-        // Redirect to dashboard
-        navigate('/dashboard');
+        if (userData) {
+          setAuth(authData.user, userData.org_id);
+          
+          // Redirect to dashboard
+          navigate('/dashboard');
+        } else {
+          throw new Error("User profile not found");
+        }
       }
     } catch (error: any) {
       console.error('Login error:', error);
