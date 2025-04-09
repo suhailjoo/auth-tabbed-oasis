@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileText, Clipboard, MessageSquare, BarChart2, User, FileDown, Download, ExternalLink } from "lucide-react";
+import { ArrowLeft, FileText, Clipboard, MessageSquare, BarChart2, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,8 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCandidateQuery, Candidate } from "@/hooks/useCandidateQuery";
+import { useCandidateQuery } from "@/hooks/useCandidateQuery";
 import { useUpdateCandidateNotesMutation } from "@/hooks/useUpdateCandidateNotesMutation";
 import { useAiResultsQuery } from "@/hooks/useAiResultsQuery";
 
@@ -43,6 +42,11 @@ const CandidateDetailPage = () => {
   };
 
   const handleNotesSave = () => {
+    if (!id) return;
+    updateNotesMutation.mutate({ candidateId: id, notes });
+  };
+
+  const handleNotesBlur = () => {
     if (!id) return;
     updateNotesMutation.mutate({ candidateId: id, notes });
   };
@@ -218,7 +222,7 @@ const CandidateDetailPage = () => {
               ) : (
                 <div className="bg-gradient-to-b from-accent/5 to-accent/20 p-8 rounded-md text-center">
                   <div className="bg-white/50 p-6 rounded-lg shadow-sm border border-accent/20 max-w-md mx-auto">
-                    <FileDown className="h-16 w-16 text-primary mx-auto mb-4" />
+                    <FileText className="h-16 w-16 text-primary mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-800 mb-2">Resume Available for Download</h3>
                     <p className="text-sm text-gray-600 mb-6">
                       This resume can be downloaded to view its contents. Click the button below to download.
@@ -281,6 +285,7 @@ const CandidateDetailPage = () => {
                 <Textarea 
                   value={notes} 
                   onChange={handleNotesChange}
+                  onBlur={handleNotesBlur}
                   placeholder="Add notes about this candidate..."
                   className="min-h-[200px] resize-y"
                 />

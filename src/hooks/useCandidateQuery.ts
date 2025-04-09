@@ -2,10 +2,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/state/useAuthStore";
-import { Tables } from "@/integrations/supabase/types";
 
-export type Candidate = Tables<"candidates"> & {
+export type Candidate = {
+  id: string;
+  name: string | null;
+  resume_url: string | null;
   notes: string | null;
+  job_id: string | null;
+  stage: string | null;
   job_title?: string | null;
 };
 
@@ -18,7 +22,7 @@ export function useCandidateQuery(candidateId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("candidates")
-        .select("*")
+        .select("id, name, resume_url, notes, job_id, stage")
         .eq("id", candidateId)
         .eq("org_id", orgId)
         .single();
