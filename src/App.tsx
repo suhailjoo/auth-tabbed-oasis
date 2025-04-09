@@ -39,67 +39,15 @@ const App = () => (
               } 
             />
             
-            {/* Protected routes */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <DashboardPage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/jobs" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <JobsPage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/jobs/create" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <CreateJobPage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/jobs/:jobId/pipeline" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <JobPipelinePage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/candidates" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <CandidatesPage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
-            <Route 
-              path="/candidates/:id" 
-              element={
-                <AuthGuard>
-                  <AuthLayout>
-                    <CandidateDetailPage />
-                  </AuthLayout>
-                </AuthGuard>
-              } 
-            />
+            {/* Protected routes with shared AuthLayout */}
+            <Route element={<AuthGuard><AuthLayout /></AuthGuard>}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/jobs" element={<JobsPage />} />
+              <Route path="/jobs/create" element={<CreateJobPage />} />
+              <Route path="/jobs/:jobId/pipeline" element={<JobPipelinePage />} />
+              <Route path="/candidates" element={<CandidatesPage />} />
+              <Route path="/candidates/:id" element={<CandidateDetailPage />} />
+            </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

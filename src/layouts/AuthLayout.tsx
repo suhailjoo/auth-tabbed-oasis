@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { LayoutDashboard, Briefcase, Users, LogOut, Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/state/useAuthStore";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,10 +22,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
-interface AuthLayoutProps {
-  children: React.ReactNode;
-}
-
 const SidebarLogo = () => {
   const { state } = useSidebar();
   
@@ -46,7 +42,7 @@ const SidebarLogo = () => {
   );
 };
 
-const AuthLayout = ({ children }: AuthLayoutProps) => {
+const AuthLayout = () => {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -155,7 +151,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6 bg-gradient-to-br from-white via-accent/5 to-white">
-            {children}
+            <Outlet />
           </main>
         </div>
       </div>
