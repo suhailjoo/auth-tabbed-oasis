@@ -24,6 +24,13 @@ export interface AiResults {
   interviewSummary: InterviewSummary | null;
 }
 
+// Define a very simple type for our database query
+// to avoid excessive type nesting
+type SimpleQueryResponse = {
+  job_type: string;
+  result: Record<string, unknown>;
+}
+
 export function useAiResultsQuery(candidateId: string) {
   const { orgId } = useAuthStore();
 
@@ -31,8 +38,7 @@ export function useAiResultsQuery(candidateId: string) {
     queryKey: ["aiResults", candidateId],
     enabled: !!candidateId && !!orgId,
     queryFn: async () => {
-      // Fetch records from workflow_jobs table with minimal type information
-      // Using `any` in the type assertion to avoid excessive type instantiation
+      // Use a simple generic type to avoid complex type inference
       const { data, error } = await supabase
         .from("workflow_jobs")
         .select("job_type, result")
@@ -53,39 +59,43 @@ export function useAiResultsQuery(candidateId: string) {
 
       // Process each result based on job_type
       if (data) {
-        // Use any[] type to avoid deep type instantiation
-        const jobResults = data as any[];
+        // Use explicit cast to avoid type inference issues
+        const jobResults = data as SimpleQueryResponse[];
         
         for (const item of jobResults) {
           if (item.job_type === "role_fit_score" && item.result) {
-            // Explicitly create a properly typed object for role fit score
-            results.roleFitScore = {
-              fit_score: item.result.fit_score !== undefined 
-                ? String(item.result.fit_score) 
-                : "N/A",
-              verdict: typeof item.result.verdict === 'string' 
-                ? item.result.verdict 
-                : "",
-              justification: typeof item.result.justification === 'string' 
-                ? item.result.justification 
-                : ""
-            };
-          } else if (item.job_type === "auto_tag_candidate" && item.result) {
-            // For tags array, handle different potential formats safely
+            // Handle role fit score results
+            const fitScore = typeof item.result.fit_score !== 'undefined' 
+              ? String(item.result.fit_score) 
+              : "N/A";
+            
+            const verdict = typeof item.result.verdict === 'string' 
+              ? item.result.verdict 
+              : "";
+              
+            const justification = typeof item.result.justification === 'string' 
+              ? item.result.justification 
+              : "";
+            
+            results.roleFitScore = { fit_score: fitScore, verdict, justification };
+          } 
+          else if (item.job_type === "auto_tag_candidate" && item.result) {
+            // Handle auto tags results
             let tagsList: string[] = [];
             
-            if (Array.isArray(item.result.tags)) {
-              tagsList = item.result.tags.map((tag: any) => String(tag));
+            if (item.result.tags && Array.isArray(item.result.tags)) {
+              tagsList = (item.result.tags as unknown[]).map(tag => String(tag));
             }
             
             results.autoTags = { tags: tagsList };
-          } else if (item.job_type === "post_interview_summary" && item.result) {
-            // Explicitly create a properly typed object for interview summary
-            results.interviewSummary = {
-              summary: typeof item.result.summary === 'string' 
-                ? item.result.summary 
-                : ""
-            };
+          } 
+          else if (item.job_type === "post_interview_summary" && item.result) {
+            // Handle interview summary results
+            const summary = typeof item.result.summary === 'string' 
+              ? item.result.summary 
+              : "";
+              
+            results.interviewSummary = { summary };
           }
         }
       }
