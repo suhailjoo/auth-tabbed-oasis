@@ -1,7 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Users, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, Briefcase, Users, LogOut, Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/state/useAuthStore";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
   SidebarSeparator
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -28,6 +28,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleSignOut = async () => {
     try {
@@ -66,8 +67,12 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     },
   ];
 
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={isExpanded}>
       <div className="flex min-h-screen w-full">
         <Sidebar variant="sidebar" collapsible="icon" side="left">
           <SidebarHeader>
@@ -77,7 +82,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
               </h1>
             </div>
           </SidebarHeader>
-          <SidebarContent>
+          <SidebarContent className="bg-gradient-to-b from-primary to-primary/80">
             <ScrollArea className="h-full">
               <SidebarMenu>
                 {navigation.map((item) => (
@@ -86,10 +91,11 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                       isActive={location.pathname === item.path}
                       tooltip={item.name}
                       asChild
+                      className="transition-all hover:translate-x-1"
                     >
                       <Link to={item.path}>
-                        <item.icon />
-                        <span>{item.name}</span>
+                        <item.icon className="text-white" />
+                        <span className="text-white font-medium">{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -97,7 +103,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
               </SidebarMenu>
             </ScrollArea>
           </SidebarContent>
-          <SidebarFooter>
+          <SidebarFooter className="bg-sidebar-accent/20 backdrop-blur-sm">
             <SidebarSeparator />
             <div className="p-2">
               <SidebarMenuButton
@@ -105,6 +111,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 tooltip="Sign out"
                 size="default"
                 variant="outline"
+                className="text-white bg-sidebar-accent hover:bg-sidebar-accent/80 hover:text-white"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
@@ -114,10 +121,10 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
         </Sidebar>
 
         <div className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+          <header className="sticky top-0 z-10 border-b bg-gradient-to-r from-accent/30 via-white to-accent/10 backdrop-blur">
             <div className="flex h-16 items-center px-6">
-              <SidebarTrigger />
-              <div className="ml-4 font-medium">
+              <SidebarTrigger className="bg-white shadow-md hover:bg-accent/30" />
+              <div className="ml-4 font-medium text-primary">
                 {user?.email}
               </div>
               <div className="ml-auto flex items-center gap-2">
@@ -125,14 +132,14 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                   variant="ghost" 
                   size="icon" 
                   onClick={handleSignOut}
-                  className="md:hidden"
+                  className="md:hidden text-primary hover:bg-primary/10"
                 >
                   <LogOut className="h-5 w-5" />
                 </Button>
               </div>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-6 bg-gradient-to-br from-white via-accent/5 to-white">
             {children}
           </main>
         </div>
