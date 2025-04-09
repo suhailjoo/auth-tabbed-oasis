@@ -3,17 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/state/useAuthStore";
 
-interface RoleFitScore {
+export interface RoleFitScore {
   fit_score: number | string;
   verdict: string;
   justification: string;
 }
 
-interface AutoTags {
+export interface AutoTags {
   tags: string[];
 }
 
-interface InterviewSummary {
+export interface InterviewSummary {
   summary: string;
 }
 
@@ -41,22 +41,33 @@ export function useAiResultsQuery(candidateId: string) {
         throw error;
       }
 
-      // Transform the data into a more usable format with proper typing
+      // Initialize results with null values
       const results: AiResults = {
         roleFitScore: null,
         autoTags: null,
         interviewSummary: null,
       };
 
-      // Process each result based on job_type
+      // Process each result based on job_type with proper type handling
       data.forEach(item => {
         if (item.job_type === "role_fit_score" && item.result) {
-          // Use simpler type casting to avoid deep nesting issues
-          results.roleFitScore = item.result as RoleFitScore;
+          // Use type assertion with 'as unknown' first to avoid TypeScript error
+          const result = item.result as Record<string, any>;
+          results.roleFitScore = {
+            fit_score: result.fit_score || "N/A",
+            verdict: result.verdict || "",
+            justification: result.justification || ""
+          };
         } else if (item.job_type === "auto_tag_candidate" && item.result) {
-          results.autoTags = item.result as AutoTags;
+          const result = item.result as Record<string, any>;
+          results.autoTags = {
+            tags: Array.isArray(result.tags) ? result.tags : []
+          };
         } else if (item.job_type === "post_interview_summary" && item.result) {
-          results.interviewSummary = item.result as InterviewSummary;
+          const result = item.result as Record<string, any>;
+          results.interviewSummary = {
+            summary: result.summary || ""
+          };
         }
       });
 
